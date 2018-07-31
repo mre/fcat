@@ -28,6 +28,8 @@ fn main() {
             ).unwrap();
 
             if res == 0 {
+                // We read 0 bytes from the input,
+                // which means we're done copying.
                 break;
             }
 
