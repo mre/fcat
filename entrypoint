@@ -1,0 +1,21 @@
+#!/bin/bash
+
+RAMDISK=/media/ramdisk
+INPUT_FILE=kitty
+NUM=1000
+OUTPUT_FILE=${INPUT_FILE}${NUM}
+#############
+
+mkdir -p ${RAMDISK}
+mount -t ramfs ramfs ${RAMDISK} 
+
+
+if [ ! -x "${RAMDISK}/${OUTPUT_FILE}" ]; then
+	echo "Creating a kitty large benchmark file"
+	dd if=/dev/urandom of="${RAMDISK}/${OUTPUT_FILE}" count=6000 bs=1M
+fi
+
+echo "Benchmarking system cat:"
+cat ${RAMDISK}/${OUTPUT_FILE} | pv -r > /dev/null
+echo "Benchmarking fcat:"
+fcat ${RAMDISK}/${OUTPUT_FILE} | pv -r > /dev/null

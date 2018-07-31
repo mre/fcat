@@ -1,0 +1,7 @@
+[package]
+authors = ["Matthias Endler <matthias-endler@gmx.net>"]
+name = "fcat"
+version = "0.1.0"
+
+[dependencies]
+nix = "0.9.0"
