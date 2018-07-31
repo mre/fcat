@@ -7,7 +7,7 @@ description = "A faster cat for Linux using splice"
 documentation = "https://github.com/mre/fcat"
 homepage = "https://github.com/mre/fcat"
 name = "fcat"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 version = "0.1.0"
 
 [dependencies]
