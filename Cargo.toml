@@ -1,6 +1,13 @@
 [package]
 authors = ["Matthias Endler <matthias-endler@gmx.net>"]
+categories = [
+    "development-tools",
+]
+description = "A faster cat for Linux using splice"
+documentation = "https://github.com/mre/fcat"
+homepage = "https://github.com/mre/fcat"
 name = "fcat"
+license = "MIT"
 version = "0.1.0"
 
 [dependencies]
