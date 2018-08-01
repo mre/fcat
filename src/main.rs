@@ -50,7 +50,7 @@ fn main() {
         let _handle = stdin.lock();
         cat(&stdin);
     } else {
-        for path in env::args().skip(1) {
+        for path in args.into_iter() {
             if path == "-" {
                 let stdin = io::stdin();
                 let _handle = stdin.lock();
