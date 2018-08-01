@@ -10,4 +10,4 @@ run:
 
 .PHONY: sh
 sh:
-	docker run -it --privileged --entrypoint bash fcat
+	docker run -v ${PWD}:/fcat -it --privileged --entrypoint bash fcat
