@@ -1,5 +1,13 @@
 extern crate nix;
 
+#[cfg(test)]
+extern crate assert_cmd;
+#[cfg(test)]
+#[macro_use]
+extern crate proptest;
+#[cfg(test)]
+extern crate tempfile;
+
 use std::env;
 use std::fs::File;
 use std::io;
@@ -59,6 +67,108 @@ fn main() {
                 cat(&File::open(&path)
                     .expect(&format!("fcat: {}: No such file or directory", path)))
             };
+        }
+    }
+}
+
+#[cfg(test)]
+mod integration {
+    use assert_cmd::prelude::*;
+    use std::{io::Write, process::Command};
+    use tempfile::NamedTempFile;
+
+    fn write_content_to_tempfile(content: &[u8]) -> String {
+        let mut file = NamedTempFile::new().expect("Cannot create temporary file");
+        file.write_all(content)
+            .expect("Cannot write to temporary file");
+        file.path()
+            .to_str()
+            .expect("Cannot get path from temporary file")
+            .to_owned()
+    }
+
+    fn concat_vecs<T>(vec0: Vec<T>, vec1: Vec<T>) -> Vec<T> {
+        let mut out = Vec::with_capacity(vec0.len() + vec1.len());
+        out.extend(vec0.into_iter());
+        out.extend(vec1.into_iter());
+        out
+    }
+
+    proptest! {
+        #[test]
+        fn cat_single_file(content: Vec<u8>) {
+            let path = write_content_to_tempfile(&content);
+            let cmd = Command::main_binary().unwrap().assert().set_cmd(path);
+            let out = cmd.get_output();
+            out.stdout == content
+        }
+
+        #[test]
+        fn cat_multiple_files(content0: Vec<u8>, content1: Vec<u8>) {
+            let path0 = write_content_to_tempfile(&content0);
+            let path1 = write_content_to_tempfile(&content1);
+
+            let cmd = Command::main_binary()
+                .unwrap()
+                .assert()
+                .set_cmd(format!("{} {}", path0, path1));
+            let out = cmd.get_output();
+
+            let expected = concat_vecs(content0, content1);
+            out.stdout == expected
+        }
+
+        #[test]
+        fn cat_stdin(content: Vec<u8>) {
+            let cmd = Command::main_binary()
+                .unwrap()
+                .assert()
+                .set_stdin(content.clone());
+            let out = cmd.get_output();
+
+            out.stdout == content
+        }
+
+        #[test]
+        fn cat_stdin_dash(content: Vec<u8>) {
+            let cmd = Command::main_binary()
+                .unwrap()
+                .assert()
+                .set_stdin(content.clone())
+                .set_cmd("-".to_owned());
+            let out = cmd.get_output();
+
+            out.stdout == content
+        }
+
+        #[test]
+        fn cat_stdin_file(content0: Vec<u8>, content1: Vec<u8>) {
+            let path = write_content_to_tempfile(&content1);
+
+            let cmd = Command::main_binary()
+                .unwrap()
+                .assert()
+                .set_stdin(content0.clone())
+                .set_cmd(format!("- {}", path));
+            let out = cmd.get_output();
+
+            let expected = concat_vecs(content0, content1);
+            out.stdout == expected
+        }
+
+        #[test]
+        fn cat_file_stdin(content0: Vec<u8>, content1: Vec<u8>) {
+            let path = write_content_to_tempfile(&content0);
+
+            let cmd = Command::main_binary()
+                .unwrap()
+                .assert()
+                .set_stdin(content0.clone())
+                .set_cmd(format!("{} -", path));
+            let out = cmd.get_output();
+
+            let expected = concat_vecs(content0, content1);
+            out.stdout == expected
         }
     }
 }
