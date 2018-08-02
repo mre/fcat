@@ -3,8 +3,19 @@
 ![fastcat logo](/fastcat.svg)
 
 `fcat`, short for *fastcat*, is a `cat` implementation in Rust using Linux' `splice` syscall.  
-With that little trick, it's **twice as fast as the system `cat`** in my tests.  
+With that little trick, it's **more than three times as fast as the system `cat`** in my tests.  
 Read the [announcement here](https://matthias-endler.de/2018/fastcat).
+
+```
+cat myfile | pv -r > /dev/null
+[1.90GiB/s]
+```
+
+```
+fcat myfile | pv -r > /dev/null
+[5.90GiB/s]
+```
+
 
 ## Installation
 
