@@ -32,6 +32,15 @@ cargo install fcat
 fcat file1 file2 file3
 ```
 
+## Project goals
+
+* Be the fastest cat in town.
+* Be a drop-in replacement for (POSIX) cat.
+
+## Non-goals
+
+* Provide any additional functionality other than what `cat` provides.  
+  If you're looking for a more beautiful cat, check out [bat](https://github.com/sharkdp/bat).
 
 ## Trivia
 
