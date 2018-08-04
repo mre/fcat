@@ -11,7 +11,7 @@ extern crate tempfile;
 use std::env;
 use std::fs::File;
 use std::io;
-use std::os::unix::io::AsRawFd;
+use std::os::unix::io::{AsRawFd, RawFd};
 
 use nix::fcntl::{splice, SpliceFFlags};
 use nix::unistd::pipe;
@@ -19,8 +19,7 @@ use nix::unistd::pipe;
 const BUF_SIZE: usize = 16384;
 
 #[inline]
-fn cat<T: AsRawFd>(input: &T) {
-    let (rd, wr) = pipe().unwrap();
+fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
     let stdout = io::stdout();
     let _handle = stdout.lock();
 
@@ -28,7 +27,7 @@ fn cat<T: AsRawFd>(input: &T) {
         let res = splice(
             input.as_raw_fd(),
             None,
-            wr,
+            pipe_wr,
             None,
             BUF_SIZE,
             SpliceFFlags::empty(),
@@ -41,7 +40,7 @@ fn cat<T: AsRawFd>(input: &T) {
         }
 
         let _res = splice(
-            rd,
+            pipe_rd,
             None,
             stdout.as_raw_fd(),
             None,
@@ -53,19 +52,24 @@ fn cat<T: AsRawFd>(input: &T) {
 
 fn main() {
     let args: Vec<_> = env::args().skip(1).collect();
+    let (pipe_rd, pipe_wr) = pipe().unwrap();
     if args.is_empty() {
         let stdin = io::stdin();
         let _handle = stdin.lock();
-        cat(&stdin);
+        cat(&stdin, pipe_rd, pipe_wr);
     } else {
         for path in args.into_iter() {
             if path == "-" {
                 let stdin = io::stdin();
                 let _handle = stdin.lock();
-                cat(&stdin);
+                cat(&stdin, pipe_rd, pipe_wr);
             } else {
-                cat(&File::open(&path)
-                    .expect(&format!("fcat: {}: No such file or directory", path)))
+                cat(
+                    &File::open(&path)
+                        .expect(&format!("fcat: {}: No such file or directory", path)),
+                    pipe_rd,
+                    pipe_wr,
+                )
             };
         }
     }
