@@ -1,5 +1,7 @@
 # 😼 fcat
 
+[![Build Status](https://api.travis-ci.org/mre/fcat.svg?branch=master)](https://travis-ci.org/mre/fcat)
+
 ![fastcat logo](/fastcat.svg)
 
 `fcat`, short for *fastcat*, is a `cat` implementation in Rust using Linux's `splice` syscall.  
