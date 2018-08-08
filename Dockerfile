@@ -3,14 +3,18 @@ FROM ekidd/rust-musl-builder:1.27.2 as builder
 # create a new empty shell project
 RUN USER=rust cargo new --bin fcat
 WORKDIR /home/rust/src/fcat
-# set modification date in the past so the actual source files will be compiled
-RUN touch -t 197001010000 src/main.rs
 
 # copy over your manifests
 COPY ./Cargo.lock Cargo.lock
 COPY ./Cargo.toml Cargo.toml
 
 # this build step will cache your dependencies
+RUN cargo build --release
+# remove cached build artefact to prevent caching issues
+RUN rm target/x86_64-unknown-linux-musl/release/fcat
+
+# copy & build source files
+COPY src/ src/
 RUN cargo build --release
 
 FROM alpine:latest
