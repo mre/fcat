@@ -6,9 +6,9 @@ RUN apt update \
 
 # create a new empty shell project
 RUN USER=root cargo new --bin fcat
+WORKDIR /fcat
 # set modification date in the past so the actual source files will be compiled
 RUN touch -t 197001010000 src/main.rs
-WORKDIR /fcat
 
 # copy over your manifests
 COPY ./Cargo.lock Cargo.lock
