@@ -10,7 +10,7 @@ COPY ./Cargo.toml Cargo.toml
 
 # this build step will cache your dependencies
 RUN cargo build --release
-# remove cached build artefact to prevent caching issues
+# remove cached build artifact to prevent caching issues
 RUN rm target/x86_64-unknown-linux-musl/release/fcat
 
 # copy & build source files
