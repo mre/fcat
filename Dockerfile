@@ -1,14 +1,8 @@
-FROM rust:1.27.2
-
-RUN apt update \
-    && apt install -y pv pipebench \
-    && apt clean
+FROM ekidd/rust-musl-builder:1.27.2 as builder
 
 # create a new empty shell project
-RUN USER=root cargo new --bin fcat
-WORKDIR /fcat
-# set modification date in the past so the actual source files will be compiled
-RUN touch -t 197001010000 src/main.rs
+RUN USER=rust cargo new --bin fcat
+WORKDIR /home/rust/src/fcat
 
 # copy over your manifests
 COPY ./Cargo.lock Cargo.lock
@@ -16,10 +10,18 @@ COPY ./Cargo.toml Cargo.toml
 
 # this build step will cache your dependencies
 RUN cargo build --release
-RUN rm src/*.rs
+# remove cached build artifact to prevent caching issues
+RUN rm target/x86_64-unknown-linux-musl/release/fcat
 
-COPY . .
-RUN cargo install
+# copy & build source files
+COPY src/ src/
+RUN cargo build --release
+
+FROM alpine:latest
+
+RUN apk --update --no-cache add pv && rm -rf /var/cache/apk/*
+
+COPY --from=builder /home/rust/src/fcat/target/x86_64-unknown-linux-musl/release/fcat /usr/local/sbin/fcat
 
 COPY entrypoint /entrypoint
 ENTRYPOINT ["/entrypoint"]
