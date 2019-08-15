@@ -1,6 +1,6 @@
 # 😼 fcat
 
-[![Build Status](https://api.travis-ci.org/mre/fcat.svg?branch=master)](https://travis-ci.org/mre/fcat)
+![Github Actions](https://action-badges.now.sh/mre/fcat?action=test)
 
 ![fastcat logo](/fastcat.svg)
 
