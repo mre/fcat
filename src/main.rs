@@ -11,68 +11,67 @@ extern crate tempfile;
 use std::env;
 use std::fs::File;
 use std::io;
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::os::unix::io::{AsRawFd, FromRawFd, RawFd};
 
 use nix::fcntl::{splice, SpliceFFlags};
 use nix::unistd::pipe;
+use std::thread;
 
 const BUF_SIZE: usize = 16384;
 
-#[inline]
-fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
-    let stdout = io::stdout();
-    let _handle = stdout.lock();
-
+fn splice_all(fd_in: RawFd, fd_out: RawFd) {
     loop {
-        let res = splice(
-            input.as_raw_fd(),
-            None,
-            pipe_wr,
-            None,
-            BUF_SIZE,
-            SpliceFFlags::empty(),
-        ).unwrap();
+        let res = splice(fd_in, None, fd_out, None, BUF_SIZE, SpliceFFlags::empty()).unwrap();
 
         if res == 0 {
             // We read 0 bytes from the input,
             // which means we're done copying.
             break;
         }
-
-        let _res = splice(
-            pipe_rd,
-            None,
-            stdout.as_raw_fd(),
-            None,
-            BUF_SIZE,
-            SpliceFFlags::empty(),
-        ).unwrap();
     }
 }
 
 fn main() {
     let args: Vec<_> = env::args().skip(1).collect();
     let (pipe_rd, pipe_wr) = pipe().unwrap();
+    // We make `File` from the pipe to make sure they are closed, even in case of a panic.
+    // We could also compile with panic=abort instead.
+    let pipe_rd = unsafe { File::from_raw_fd(pipe_rd) };
+    let pipe_wr = unsafe { File::from_raw_fd(pipe_wr) };
+
+    let output_thread = thread::spawn(move || {
+        let stdout = io::stdout();
+        let _handle = stdout.lock();
+
+        splice_all(pipe_rd.as_raw_fd(), stdout.as_raw_fd());
+    });
+
     if args.is_empty() {
         let stdin = io::stdin();
         let _handle = stdin.lock();
-        cat(&stdin, pipe_rd, pipe_wr);
+        splice_all(stdin.as_raw_fd(), pipe_wr.as_raw_fd());
     } else {
         for path in args.into_iter() {
             if path == "-" {
                 let stdin = io::stdin();
                 let _handle = stdin.lock();
-                cat(&stdin, pipe_rd, pipe_wr);
+                splice_all(stdin.as_raw_fd(), pipe_wr.as_raw_fd());
             } else {
-                cat(
-                    &File::open(&path)
-                        .expect(&format!("fcat: {}: No such file or directory", path)),
-                    pipe_rd,
-                    pipe_wr,
+                splice_all(
+                    File::open(&path)
+                        .expect(&format!("fcat: {}: No such file or directory", path))
+                        .as_raw_fd(),
+                    pipe_wr.as_raw_fd(),
                 )
             };
         }
     }
+
+    // We explicitly drop `pipe_wr` so that its pipe end is closed. Otherwise, the splice call
+    // in `output_thread` would wait forever and we would have a deadlock.
+    drop(pipe_wr);
+
+    let _ = output_thread.join();
 }
 
 #[cfg(test)]
