@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install tools
+      run: apt-get update && apt-get install -y coreutils pv
     - uses: actions/checkout@v1
     - name: Build
       run: cargo build --verbose
