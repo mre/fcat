@@ -31,7 +31,8 @@ fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
             None,
             BUF_SIZE,
             SpliceFFlags::empty(),
-        ).unwrap();
+        )
+        .unwrap();
 
         if res == 0 {
             // We read 0 bytes from the input,
@@ -46,7 +47,8 @@ fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
             None,
             BUF_SIZE,
             SpliceFFlags::empty(),
-        ).unwrap();
+        )
+        .unwrap();
     }
 }
 
@@ -102,7 +104,7 @@ mod integration {
         #[test]
         fn cat_single_file(content: Vec<u8>) {
             let path = write_content_to_tempfile(&content);
-            let cmd = Command::main_binary().unwrap().assert().set_cmd(path);
+            let cmd = Command::main_binary().unwrap().assert().append_context("command", path);
             let out = cmd.get_output();
             out.stdout == content
         }
@@ -115,7 +117,7 @@ mod integration {
             let cmd = Command::main_binary()
                 .unwrap()
                 .assert()
-                .set_cmd(format!("{} {}", path0, path1));
+                .append_context("command", format!("{} {}", path0, path1));
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
@@ -127,7 +129,7 @@ mod integration {
             let cmd = Command::main_binary()
                 .unwrap()
                 .assert()
-                .set_stdin(content.clone());
+                .append_context("stdin", format!("{:?}", content.clone()));
             let out = cmd.get_output();
 
             out.stdout == content
@@ -138,8 +140,8 @@ mod integration {
             let cmd = Command::main_binary()
                 .unwrap()
                 .assert()
-                .set_stdin(content.clone())
-                .set_cmd("-".to_owned());
+                .append_context("stdin", format!("{:?}", content.clone()))
+                .append_context("command", "-".to_owned());
             let out = cmd.get_output();
 
             out.stdout == content
@@ -152,8 +154,8 @@ mod integration {
             let cmd = Command::main_binary()
                 .unwrap()
                 .assert()
-                .set_stdin(content0.clone())
-                .set_cmd(format!("- {}", path));
+                .append_context("stdin", format!("{:?}", content0.clone()))
+                .append_context("command", format!("- {}", path));
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
@@ -167,8 +169,8 @@ mod integration {
             let cmd = Command::main_binary()
                 .unwrap()
                 .assert()
-                .set_stdin(content0.clone())
-                .set_cmd(format!("{} -", path));
+                .append_context("stdin", format!("{:?}", content0.clone()))
+                .append_context("command", format!("{} -", path));
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
