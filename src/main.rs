@@ -104,7 +104,7 @@ mod integration {
         #[test]
         fn cat_single_file(content: Vec<u8>) {
             let path = write_content_to_tempfile(&content);
-            let cmd = Command::main_binary().unwrap().assert().append_context("command", path);
+            let cmd = Command::cargo_bin("fcat").unwrap().assert().append_context("command", path);
             let out = cmd.get_output();
             out.stdout == content
         }
@@ -114,7 +114,7 @@ mod integration {
             let path0 = write_content_to_tempfile(&content0);
             let path1 = write_content_to_tempfile(&content1);
 
-            let cmd = Command::main_binary()
+            let cmd = Command::cargo_bin("fcat")
                 .unwrap()
                 .assert()
                 .append_context("command", format!("{} {}", path0, path1));
@@ -126,7 +126,7 @@ mod integration {
 
         #[test]
         fn cat_stdin(content: Vec<u8>) {
-            let cmd = Command::main_binary()
+            let cmd = Command::cargo_bin("fcat")
                 .unwrap()
                 .assert()
                 .append_context("stdin", format!("{:?}", content.clone()));
@@ -137,7 +137,7 @@ mod integration {
 
         #[test]
         fn cat_stdin_dash(content: Vec<u8>) {
-            let cmd = Command::main_binary()
+            let cmd = Command::cargo_bin("fcat")
                 .unwrap()
                 .assert()
                 .append_context("stdin", format!("{:?}", content.clone()))
@@ -151,7 +151,7 @@ mod integration {
         fn cat_stdin_file(content0: Vec<u8>, content1: Vec<u8>) {
             let path = write_content_to_tempfile(&content1);
 
-            let cmd = Command::main_binary()
+            let cmd = Command::cargo_bin("fcat")
                 .unwrap()
                 .assert()
                 .append_context("stdin", format!("{:?}", content0.clone()))
@@ -166,7 +166,7 @@ mod integration {
         fn cat_file_stdin(content0: Vec<u8>, content1: Vec<u8>) {
             let path = write_content_to_tempfile(&content0);
 
-            let cmd = Command::main_binary()
+            let cmd = Command::cargo_bin("fcat")
                 .unwrap()
                 .assert()
                 .append_context("stdin", format!("{:?}", content0.clone()))
