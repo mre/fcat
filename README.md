@@ -18,7 +18,6 @@ fcat myfile | pv -r > /dev/null
 [5.90GiB/s]
 ```
 
-
 ## Installation
 
 Note: Only works on Linux.  
@@ -42,12 +41,11 @@ fcat file1 file2 file3
 ## Non-goals
 
 * Provide any additional functionality other than what `cat` provides.  
-  If you're looking for a more beautiful cat, check out [bat](https://github.com/sharkdp/bat).
-
+  If you're looking for a more *beautiful* cat, check out [bat](https://github.com/sharkdp/bat).
 
 ## Known issues
 
-If you run `fcat /dev/zero >> myfile`, it fail with exit code `EINVAL`, because, according to the [splice manpage](http://man7.org/linux/man-pages/man2/splice.2.html): "The target file is opened in append mode."
+If you run `fcat /dev/zero >> myfile`, it will fail with exit code `EINVAL` because, according to the [splice manpage](http://man7.org/linux/man-pages/man2/splice.2.html): "The target file is opened in append mode."
 
 ## Trivia
 
