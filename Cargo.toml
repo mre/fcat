@@ -15,5 +15,5 @@ nix = "0.19.1"
 
 [dev-dependencies]
 assert_cmd = "1.0.3"
-proptest = "0.9.6"
+proptest = "0.10.1"
 tempfile = "3.2.0"
