@@ -106,7 +106,7 @@ mod integration {
             let path = write_content_to_tempfile(&content);
             let cmd = Command::cargo_bin("fcat").unwrap().assert().append_context("command", path);
             let out = cmd.get_output();
-            out.stdout == content
+            out.stdout == content;
         }
 
         #[test]
@@ -121,7 +121,7 @@ mod integration {
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
-            out.stdout == expected
+            out.stdout == expected;
         }
 
         #[test]
@@ -132,7 +132,7 @@ mod integration {
                 .append_context("stdin", format!("{:?}", content.clone()));
             let out = cmd.get_output();
 
-            out.stdout == content
+            out.stdout == content;
         }
 
         #[test]
@@ -144,7 +144,7 @@ mod integration {
                 .append_context("command", "-".to_owned());
             let out = cmd.get_output();
 
-            out.stdout == content
+            out.stdout == content;
         }
 
         #[test]
@@ -159,7 +159,7 @@ mod integration {
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
-            out.stdout == expected
+            out.stdout == expected;
         }
 
         #[test]
@@ -174,7 +174,7 @@ mod integration {
             let out = cmd.get_output();
 
             let expected = concat_vecs(content0, content1);
-            out.stdout == expected
+            out.stdout == expected;
         }
     }
 }
