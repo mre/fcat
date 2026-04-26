@@ -13,15 +13,17 @@ use std::fs::File;
 use std::io;
 use std::os::unix::io::{AsRawFd, RawFd};
 
-use nix::fcntl::{splice, SpliceFFlags};
+use nix::fcntl::{fcntl, FcntlArg, splice, SpliceFFlags};
 use nix::unistd::pipe;
 
-const BUF_SIZE: usize = 16384;
+const MAX_ROOTLESS_PIPE_SIZE: usize = 1024 * 1024;
 
 #[inline]
 fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
     let stdout = io::stdout();
     let _handle = stdout.lock();
+
+    let _ = fcntl(pipe_wr, FcntlArg::F_SETPIPE_SZ(MAX_ROOTLESS_PIPE_SIZE as i32));
 
     loop {
         let res = splice(
@@ -29,7 +31,7 @@ fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
             None,
             pipe_wr,
             None,
-            BUF_SIZE,
+            MAX_ROOTLESS_PIPE_SIZE,
             SpliceFFlags::empty(),
         )
         .unwrap();
@@ -45,7 +47,7 @@ fn cat<T: AsRawFd>(input: &T, pipe_rd: RawFd, pipe_wr: RawFd) {
             None,
             stdout.as_raw_fd(),
             None,
-            BUF_SIZE,
+            MAX_ROOTLESS_PIPE_SIZE,
             SpliceFFlags::empty(),
         )
         .unwrap();
