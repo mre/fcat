@@ -5,11 +5,11 @@
 ![fastcat logo](/fastcat.svg)
 
 `fcat`, short for *fastcat*, is a `cat` implementation in Rust using Linux's `splice` syscall.  
-With that little trick, it's **more than three times as fast as the system `cat`** in our benchmarks.  
 Read the [announcement here](https://endler.dev/2018/fastcat).
 
 :warning: **This project is currently broken on newer Linux versions (5.9+) because of some changes  
-concerning the `splice` system call. (See [here](http://archive.lwn.net:8080/linux-kernel/202105071116.638258236E@keescook/t/) and [here](https://cdn.kernel.org/pub/linux/kernel/v5.x/ChangeLog-5.9).) This can't be fixed unless changes to the kernel get made.**
+concerning the `splice` system call. (See [here](http://archive.lwn.net:8080/linux-kernel/202105071116.638258236E@keescook/t/) and [here](https://cdn.kernel.org/pub/linux/kernel/v5.x/ChangeLog-5.9).)
+Consider using uutils/cat, GNU coreutils 9.11 on such kernels since it supports `splice` too.
 
 ## Performance
 
@@ -55,8 +55,8 @@ If you run `fcat /dev/zero >> myfile`, it will fail with exit code `EINVAL` beca
 ## Trivia
 
 * You probably won't ever need this, but it's a fun little experiment.  
-  Still, I wonder why this is not part of e.g. GNU cat...
 * What I like the most about the project is the logo.
+* GNU coreutils 9.11 started using `splice` at `cat` (https://savannah.gnu.org/news/?id=10884).
 
 ## License
 
