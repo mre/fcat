@@ -1,15 +1,15 @@
 # 😼 fcat
 
-![Github Actions](https://action-badges.now.sh/mre/fcat?action=test)
+> [!WARNING]
+>
+> This project is no longer obsolete.
+> Consider using uutils/cat or GNU coreutils, which now both support `splice` too.
 
 ![fastcat logo](/fastcat.svg)
 
 `fcat`, short for *fastcat*, is a `cat` implementation in Rust using Linux's `splice` syscall.  
 Read the [announcement here](https://endler.dev/2018/fastcat).
 
-:warning: **This project is currently broken on newer Linux versions (5.9+) because of some changes  
-concerning the `splice` system call. (See [here](http://archive.lwn.net:8080/linux-kernel/202105071116.638258236E@keescook/t/) and [here](https://cdn.kernel.org/pub/linux/kernel/v5.x/ChangeLog-5.9).)
-Consider using uutils/cat, GNU coreutils 9.11 on such kernels since it supports `splice` too.
 
 ## Performance
 
